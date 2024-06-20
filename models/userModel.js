@@ -26,8 +26,6 @@ const userSchema = new mongoose.Schema(
     },
     file: {
       type: String,
-      default: "https://teachable-58941829a392.herokuapp.com/user_1.png",
-      required: [true, "Please provide a Photo"],
     },
     role: {
       type: String,
@@ -106,8 +104,6 @@ userSchema.pre("save", function (next) {
 //   this.find({ active: { $ne: false } });
 //   next();
 // });
-
-
 
 userSchema.methods.correctPassword = async function (
   candidatePassword,
