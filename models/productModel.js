@@ -25,6 +25,10 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: [true, "A Product must related to a Category"],
     },
+    typeOfCloth: {
+      type: String,
+      required: [true, "A Product must related to a Type"],
+    },
     price: {
       type: Number,
       required: [true, "A Product must have a price"],
@@ -32,22 +36,10 @@ const productSchema = new mongoose.Schema(
     discount: {
       type: Number,
     },
-    quantity: {
+    allQuantity: {
       type: Number,
-      required: [true, "A Product must have a quantity"],
+      default: 0,
     },
-    files: [
-      {
-        type: String,
-        required: [true, "A Product must have at least one file"],
-      },
-    ],
-    colors: [
-      {
-        type: String,
-        required: [true, "A Product must have at least one color"],
-      },
-    ],
     brand: {
       type: String,
     },

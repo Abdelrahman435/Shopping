@@ -5,6 +5,7 @@ const sharp = require("sharp");
 const AppError = require("./../utils/appError");
 const factory = require("./handlerFactory");
 const User = require("../models/userModel");
+const Details = require("../models/productDetails");
 
 const multerStorage = multer.memoryStorage();
 
@@ -21,36 +22,29 @@ const upload = multer({
   fileFilter: multerFilter,
 });
 
-exports.uploadProductPhotos = upload.array("photos", 5); // Adjust the second parameter for the max number of photos
+exports.uploadProductPhotos = upload.single("photo");
 
 exports.resizeProductPhotos = catchAsync(async (req, res, next) => {
-  if (!req.files || !req.files.length) return next();
+  if (!req.file) return next();
 
-  req.body.files = [];
+  req.file.filename = `Course-${Date.now()}.jpeg`;
 
-  await Promise.all(
-    req.files.map(async (file, index) => {
-      const filename = `Product-${Date.now()}-${index + 1}.jpeg`;
-
-      await sharp(file.buffer)
-        .resize(500, 500)
-        .toFormat("jpeg")
-        .jpeg({ quality: 90 });
-
-      req.body.files.push(filename);
-    })
-  );
-
+  await sharp(req.file.buffer)
+    .resize(500, 500)
+    .toFormat("jpeg")
+    .jpeg({ quality: 90 });
   next();
 });
 
-exports.setColors = (req, res, next) => {
-  if (req.body.colors) {
-    req.body.colors = req.body.colors.split(',').map(color => color.trim());
-
+exports.setQuantity = catchAsync(async (req, res, next) => {
+  let array = req.body.sizes;
+  let sum = 0;
+  for (let i = 0; i < array.length; i++) {
+    sum = sum + Number(array[i].quantity);
   }
+  await Product.findByIdAndUpdate(req.body.Product, { allQuantity: sum });
   next();
-};
+});
 
 // Uncomment and adjust the following if you need to delete related data
 // exports.deleteRelatedData = catchAsync(async (req, res, next) => {
@@ -69,6 +63,8 @@ exports.getAllProducts = factory.getAll(Product);
 exports.getProduct = factory.getOne(Product);
 
 exports.createProduct = factory.createOne(Product);
+
+exports.addDetail = factory.createOne(Details);
 
 exports.updateProduct = factory.updateOne(Product);
 

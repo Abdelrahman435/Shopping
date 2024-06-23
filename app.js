@@ -15,6 +15,7 @@ const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
 var usersRouter = require("./routes/users");
 var productsRouter = require("./routes/product");
+var detailsRouter = require("./routes/addDetails");
 
 // const poseDetectRouter = require("./routes/poseDetect");
 
@@ -71,6 +72,7 @@ app.use(express.static("upload"));
 
 app.use("/users", usersRouter);
 app.use("/products", productsRouter);
+app.use("/details", detailsRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
