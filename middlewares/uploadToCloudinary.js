@@ -3,10 +3,10 @@ const streamifier = require("streamifier");
 
 async function uploadToCloudinary(req, res, next) {
   try {
-    if (req.file) {
+    const uploadFile = async (file) => {
       // Determine the resource type based on the file extension
       let resourceType;
-      const fileExtension = req.file.originalname.split('.').pop().toLowerCase();
+      const fileExtension = file.originalname.split('.').pop().toLowerCase();
       if (fileExtension === 'pdf') {
         resourceType = 'raw';
       } else {
@@ -22,11 +22,16 @@ async function uploadToCloudinary(req, res, next) {
           }
         });
 
-        streamifier.createReadStream(req.file.buffer).pipe(stream);
+        streamifier.createReadStream(file.buffer).pipe(stream);
       });
 
-      // Attach Cloudinary result to the request object
-      req.cloudinaryResult = result;
+      return result;
+    };
+
+    if (req.files && req.files.length > 0) {
+      req.cloudinaryResults = await Promise.all(req.files.map(uploadFile));
+    } else if (req.file) {
+      req.cloudinaryResult = await uploadFile(req.file);
     }
 
     // Call the next middleware or route handler

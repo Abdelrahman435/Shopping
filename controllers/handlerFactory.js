@@ -11,10 +11,20 @@ exports.deleteOne = (Model) =>
     if (!model) {
       return next(new AppError("No Document found with that ID", 404));
     }
-    if (model.file) {
+
+    // Check if model.file is an array
+    if (model.files && Array.isArray(model.files)) {
+      // Iterate over each file and delete it
+      for (const file of model.files) {
+        const publicId = file.split("/").pop().split(".")[0];
+        await cloudinary.uploader.destroy(publicId);
+      }
+    } else if (model.file) {
+      // Handle single file
       const publicId = model.file.split("/").pop().split(".")[0];
       await cloudinary.uploader.destroy(publicId);
     }
+
     const doc = await Model.findByIdAndDelete(req.params.id);
 
     res.status(204).json({
@@ -56,9 +66,15 @@ exports.updateOne = (Model) =>
 
 exports.createOne = (Model) =>
   catchAsync(async (req, res, next) => {
-    if (req.file) req.body.file = req.cloudinaryResult.secure_url;
+    if (req.file) {
+      // Single file upload
+      req.body.file = req.cloudinaryResult.secure_url;
+    } else if (req.files && req.files.length > 0) {
+      // Multiple file upload
+      req.body.files = req.cloudinaryResults.map((result) => result.secure_url);
+    }
 
-    newDocument = await Model.create(req.body);
+    const newDocument = await Model.create(req.body);
 
     res.status(201).json({
       status: "success",
@@ -72,7 +88,6 @@ exports.getOne = (Model, popOptions) =>
   catchAsync(async (req, res, next) => {
     let query = Model.findById(req.params.id);
     if (popOptions) query.populate(popOptions);
-
     const doc = await query;
     // Course.findOne({ _id: req.params.id })
 
@@ -106,13 +121,7 @@ exports.getAll = (Model) =>
       totalPages = Math.ceil(docs.length / req.query.limit);
     } else {
       totalPages = 0;
-      docs = 0
-    }
-    if (Model == Exam) {
-      documents = documents.map((exam) => {
-        exam.updateStatus();
-        return exam;
-      });
+      docs = 0;
     }
     // SEND RESPONSE
     res.status(200).json({
