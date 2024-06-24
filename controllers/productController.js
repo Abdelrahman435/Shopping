@@ -46,6 +46,11 @@ exports.setQuantity = catchAsync(async (req, res, next) => {
   next();
 });
 
+exports.setid = catchAsync(async (req, res, next) => {
+  
+  next();
+});
+
 // Uncomment and adjust the following if you need to delete related data
 // exports.deleteRelatedData = catchAsync(async (req, res, next) => {
 //   await Modules.deleteMany({ course: req.params.id });

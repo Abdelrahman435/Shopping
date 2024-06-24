@@ -40,6 +40,12 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    details: [
+      {
+        type: mongoose.Schema.ObjectId, // identifiy to be a MongoDB ID
+        ref: "Details",
+      },
+    ],
     brand: {
       type: String,
     },
@@ -55,12 +61,12 @@ productSchema.virtual("priceAfterDiscount").get(function () {
   return this.price - (this.discount / 100) * 100; // Use Math.floor to round down to the nearest integer
 });
 
-// // this is virtual populate
-// courseSchema.virtual("modules", {
-//   ref: "Modules",
-//   foreignField: "course",
-//   localField: "_id",
-// });
+// this is virtual populate
+productSchema.virtual("details", {
+  ref: "Details",
+  foreignField: "Product",
+  localField: "_id",
+});
 
 const Product = mongoose.model("Product", productSchema);
 

@@ -3,7 +3,8 @@ const productController = require("../controllers/productController");
 const authController = require("./../controllers/authController");
 const uploadToCloudinary = require("../middlewares/uploadToCloudinary");
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true }); //to get access to params in courses router
+
 router.use(authController.protect);
 
 router
@@ -15,6 +16,6 @@ router
     uploadToCloudinary,
     productController.setQuantity,
     productController.addDetail
-  );
+  ).get9;
 
 module.exports = router;
