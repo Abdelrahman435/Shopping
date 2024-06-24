@@ -52,9 +52,9 @@ const createSendToken = (user, statusCode, req, res) => {
   });
 };
 
-exports.uploadCoursePhoto = upload.single("photo");
+exports.uploadUserPhoto = upload.single("photo");
 
-exports.resizeCoursePhoto = catchAsync(async (req, res, next) => {
+exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
 
   req.file.filename = `Course-${Date.now()}.jpeg`;
