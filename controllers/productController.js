@@ -43,6 +43,14 @@ exports.setQuantity = catchAsync(async (req, res, next) => {
     sum = sum + Number(array[i].quantity);
   }
   await Product.findByIdAndUpdate(req.body.Product, { allQuantity: sum });
+  await Product.findByIdAndUpdate(
+    req.body.Product,
+    { $push: { details: _id } }, //$push to add to the array
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
   next();
 });
 
