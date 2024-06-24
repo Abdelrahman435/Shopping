@@ -25,6 +25,12 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: [true, "A Product must related to a Category"],
     },
+    details: [
+      {
+        type: mongoose.Schema.ObjectId, // identifiy to be a MongoDB ID
+        ref: "Details",
+      },
+    ],
     typeOfCloth: {
       type: String,
       required: [true, "A Product must related to a Type"],
@@ -40,12 +46,6 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    details: [
-      {
-        type: mongoose.Schema.ObjectId, // identifiy to be a MongoDB ID
-        ref: "Details",
-      },
-    ],
     brand: {
       type: String,
     },
@@ -62,7 +62,7 @@ productSchema.virtual("priceAfterDiscount").get(function () {
 });
 
 // this is virtual populate
-productSchema.virtual("details", {
+productSchema.virtual("detailsOfProduct", {
   ref: "Details",
   foreignField: "Product",
   localField: "_id",
