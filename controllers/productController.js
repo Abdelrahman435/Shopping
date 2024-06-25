@@ -4,6 +4,7 @@ const multer = require("multer");
 const sharp = require("sharp");
 const AppError = require("./../utils/appError");
 const factory = require("./handlerFactory");
+const User = require("../models/userModel");
 
 const multerStorage = multer.memoryStorage();
 
@@ -35,7 +36,7 @@ exports.resizeProductPhotos = catchAsync(async (req, res, next) => {
 });
 
 exports.setid = catchAsync(async (req, res, next) => {
-  
+  req.body.productOwner = req.user.id;
   next();
 });
 

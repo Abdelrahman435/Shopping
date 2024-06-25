@@ -6,34 +6,38 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: [true, "Name is required!"],
       trim: true,
-      maxlength: [40, "A  name must have less or equal then 40 characters"],
+      maxlength: [40, "A name must have less or equal than 40 characters"],
     },
     description: {
       type: String,
       required: [true, "Description is required!"],
       maxlength: [
         300,
-        "A  Description must have less or equal then 300 characters",
+        "A description must have less or equal than 300 characters",
       ],
       minlength: [
         20,
-        "A  Description must have more or equal then 20 characters",
+        "A description must have more or equal than 20 characters",
       ],
       trim: true,
     },
     category: {
       type: String,
-      required: [true, "A Product must related to a Category"],
+      required: [true, "A Product must relate to a Category"],
     },
     details: [
       {
-        type: mongoose.Schema.ObjectId, // identifiy to be a MongoDB ID
+        type: mongoose.Schema.ObjectId,
         ref: "Details",
       },
     ],
+    productOwner: {
+      type: mongoose.Schema.ObjectId,
+      ref: "User",
+    },
     typeOfCloth: {
       type: String,
-      required: [true, "A Product must related to a Type"],
+      required: [true, "A Product must relate to a Type"],
     },
     price: {
       type: Number,
@@ -58,10 +62,9 @@ const productSchema = new mongoose.Schema(
 );
 
 productSchema.virtual("priceAfterDiscount").get(function () {
-  return this.price - (this.discount / 100) * 100; // Use Math.floor to round down to the nearest integer
+  return this.price - (this.discount / 100) * this.price;
 });
 
-// this is virtual populate
 productSchema.virtual("detailsOfProduct", {
   ref: "Details",
   foreignField: "Product",
@@ -72,9 +75,26 @@ productSchema.pre(/^find/, function (next) {
   this.populate({
     path: "details",
     select: "color file sizes",
-  }); // here to make the output contains the details of the instructor we should write populating
+  });
 
   next();
+});
+
+productSchema.virtual("productsOwner", {
+  ref: "User",
+  foreignField: "products",
+  localField: "_id",
+});
+
+productSchema.post("save", async function (doc, next) {
+  try {
+    await mongoose.model("User").findByIdAndUpdate(doc.productOwner, {
+      $push: { products: doc._id },
+    });
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 const Product = mongoose.model("Product", productSchema);

@@ -1,5 +1,5 @@
-const crypto = require("crypto");
 const mongoose = require("mongoose");
+const crypto = require("crypto");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 
@@ -8,14 +8,14 @@ const userSchema = new mongoose.Schema(
     firstName: {
       type: String,
       required: [true, "Please tell us your name!"],
-      maxlength: [15, "A  name must have less or equal then 10 characters"],
-      minlength: [3, "A  name must have more or equal then 3 characters"],
+      maxlength: [15, "A name must have less or equal than 10 characters"],
+      minlength: [3, "A name must have more or equal than 3 characters"],
     },
     lastName: {
       type: String,
       required: [true, "Please tell us your name!"],
-      maxlength: [15, "A  name must have less or equal then 10 characters"],
-      minlength: [3, "A  name must have more or equal then 3 characters"],
+      maxlength: [15, "A name must have less or equal than 10 characters"],
+      minlength: [3, "A name must have more or equal than 3 characters"],
     },
     email: {
       type: String,
@@ -45,7 +45,6 @@ const userSchema = new mongoose.Schema(
         message: "Phone number must be exactly 11 digits",
       },
     },
-
     password: {
       type: String,
       required: [true, "Please provide a password"],
@@ -63,10 +62,15 @@ const userSchema = new mongoose.Schema(
         message: "Passwords are not the same!",
       },
     },
+    products: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "Product",
+      },
+    ],
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,
-
     rememberMe: {
       type: Boolean,
       default: false,
@@ -76,7 +80,7 @@ const userSchema = new mongoose.Schema(
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-    timestamps: true, // Moved timestamps into the same object
+    timestamps: true,
   }
 );
 
@@ -96,12 +100,6 @@ userSchema.pre("save", function (next) {
   this.passwordChangedAt = Date.now();
   next();
 });
-
-// userSchema.pre(/^find/, function (next) {
-//   //This point to current query
-//   this.find({ active: { $ne: false } });
-//   next();
-// });
 
 userSchema.methods.correctPassword = async function (
   candidatePassword,
@@ -125,8 +123,6 @@ userSchema.methods.createPasswordResetToken = function () {
     .createHash("sha256")
     .update(resetToken)
     .digest("hex");
-
-  // console.log({ resetToken }, this.passwordResetToken);
 
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 

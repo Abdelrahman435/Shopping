@@ -13,6 +13,7 @@ router
   .get(productController.getAllProducts)
   .post(
     authController.restrictTo("admin", "super admin"),
+    productController.setid,
     productController.createProduct
   );
 
