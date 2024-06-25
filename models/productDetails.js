@@ -29,6 +29,17 @@ const detailsSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+detailsSchema.post('save', async function(doc, next) {
+  try {
+    await mongoose.model('Product').findByIdAndUpdate(doc.Product, {
+      $push: { details: doc._id }
+    });
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 const Details = mongoose.model("Details", detailsSchema);
 
 module.exports = Details;

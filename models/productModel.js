@@ -68,6 +68,15 @@ productSchema.virtual("detailsOfProduct", {
   localField: "_id",
 });
 
+productSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "details",
+    select: "color file sizes",
+  }); // here to make the output contains the details of the instructor we should write populating
+
+  next();
+});
+
 const Product = mongoose.model("Product", productSchema);
 
 module.exports = Product;

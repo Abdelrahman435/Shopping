@@ -1,5 +1,5 @@
 const express = require("express");
-const productController = require("../controllers/productController");
+const detailsController = require("../controllers/detailsController");
 const authController = require("./../controllers/authController");
 const uploadToCloudinary = require("../middlewares/uploadToCloudinary");
 
@@ -11,11 +11,27 @@ router
   .route("/")
   .post(
     authController.restrictTo("admin", "super admin"),
-    productController.uploadProductPhotos,
-    productController.resizeProductPhotos,
+    detailsController.uploadProductPhotos,
+    detailsController.resizeProductPhotos,
     uploadToCloudinary,
-    productController.setQuantity,
-    productController.addDetail
-  ).get9;
+    detailsController.setQuantity,
+    detailsController.addDetail
+  )
+  .get(detailsController.getDetailsForProduct);
+
+router
+  .route("/:id")
+  .get(detailsController.getDetail)
+  .patch(
+    authController.restrictTo("admin", "super admin"),
+    detailsController.uploadProductPhotos,
+    detailsController.resizeProductPhotos,
+    uploadToCloudinary,
+    detailsController.updateDetail
+  )
+  .delete(
+    authController.restrictTo("admin", "super admin"),
+    detailsController.deleteDetil
+  );
 
 module.exports = router;
