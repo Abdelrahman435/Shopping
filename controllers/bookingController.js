@@ -27,16 +27,17 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     client_reference_id: req.params.productId,
     line_items: [
       {
-        currency: "usd",
-
-        name: `${product.name} Product`,
-        description: product.description,
-        images: [req.body.image],
-        // size: req.body.size,
-        // color: req.body.color,
-
-        amount: product.priceAfterDiscount * 100,
-
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: `${product.name} Product`,
+            description: product.description,
+            images: [req.body.image],
+            // size: req.body.size,
+            // color: req.body.color,
+          },
+          unit_amount: product.priceAfterDiscount * 100,
+        },
         quantity: 1,
       },
     ],
@@ -51,7 +52,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 const createBookingCheckout = async (session) => {
   const product = session.client_reference_id;
   const user = (await User.findOne({ email: session.customer_email })).id;
-  const price = session.display_items[0].amount / 100;
+  const price = session.display_items[0].price_data.unit_amount;
   await Bookings.create({ user, product, price });
 };
 
