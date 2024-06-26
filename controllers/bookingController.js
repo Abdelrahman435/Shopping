@@ -5,6 +5,7 @@ const AppError = require("./../utils/appError");
 const factory = require("./handlerFactory");
 const { CurrencyCodes } = require("validator/lib/isISO4217");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const User = require("../models/userModel");
 
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   // 1) Get the booked product
@@ -48,9 +49,12 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   });
 });
 
-const createBookingCheckout = session => {
-
-}
+const createBookingCheckout = async (session) => {
+  const product = session.client_reference_id;
+  const user = (await User.findOne({ email: session.customer_email })).id;
+  const price = session.line_items[0].price_data.unit_amount;
+  await Bookings.create({ user, product, price });
+};
 
 exports.webhookCheckout = catchAsync(async (req, res, next) => {
   const signature = req.headers["stripe-signature"];
@@ -65,5 +69,7 @@ exports.webhookCheckout = catchAsync(async (req, res, next) => {
     return res.status(400).send(`Webhook error:${err.message}`);
   }
 
-  if(event.type === 'checkout.session.completed'){}
+  if (event.type === "checkout.session.completed")
+    createBookingCheckout(event.data.object);
+  res.status(200).json({ received: true });
 });
