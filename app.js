@@ -20,8 +20,6 @@ var detailsRouter = require("./routes/addDetails");
 var bookingRouter = require("./routes/booking");
 var bookingController = require("./controllers/bookingController");
 
-// const poseDetectRouter = require("./routes/poseDetect");
-
 var app = express();
 
 app.enable("trust proxy");
@@ -35,9 +33,9 @@ app.use(
   })
 );
 
-app.use(helmet()); //set security HTTP headers
+app.use(helmet()); // Set security HTTP headers
 
-//limit requests from same api
+// Limit requests from same API
 const limiter = rateLimit({
   max: 100,
   windowMs: 60 * 60 * 1000,
@@ -45,37 +43,40 @@ const limiter = rateLimit({
 });
 app.use("/login", limiter);
 
-// view engine setup
+// View engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 app.use(express.static(path.join(__dirname, "public")));
 
+// Stripe webhook endpoint
 app.post(
   "/webhook-checkout",
   bodyParser.raw({ type: "application/json" }),
   bookingController.webhookCheckout
 );
 
+// Log requests
 app.use(logger("dev"));
-app.use(express.json());
 
-//Data sanitization against NoSQL query injection
+// Parse JSON and URL-encoded data
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+// Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
 
 // Data sanitization against XSS
 app.use(xss());
 
-// privent parameter poullution
+// Prevent parameter pollution
 // app.use(hpp({
 //   whitelist: []
 // }));
 
-app.use(express.urlencoded({ extended: false }));
-
+// Parse cookies
 app.use(cookieParser());
 
-app.use(express.static(path.join(__dirname, "public")));
-
+// Compression
 app.use(compression());
 app.use(express.static("upload"));
 
@@ -84,24 +85,21 @@ app.use("/products", productsRouter);
 app.use("/details", detailsRouter);
 app.use("/bookings", bookingRouter);
 
+// Catch 404 and forward to error handler
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
+// Global error handler
 app.use(globalErrorHandler);
 
-// catch 404 and forward to error handler
-app.use(function (req, res, next) {
-  next(createError(404));
-});
-
-// error handler
+// Error handler
 app.use(function (err, req, res, next) {
-  // set locals, only providing error in development
+  // Set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
 
-  // render the error page
+  // Render the error page
   res.status(err.status || 500);
   res.render("error");
 });
