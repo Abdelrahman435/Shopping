@@ -52,7 +52,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 const createBookingCheckout = async (session) => {
   const product = session.client_reference_id;
   const user = (await User.findOne({ email: session.customer_email })).id;
-  const price = session.amount_total; // Updated to amount_total
+  const price = session.amount/100; // Updated to amount_total
   await Bookings.create({ user, product, price });
 };
 
