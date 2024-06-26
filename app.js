@@ -48,15 +48,19 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 app.use(express.static(path.join(__dirname, "public")));
 
+// Stripe webhook endpoint
+app.post(
+  "/webhook-checkout",
+  bodyParser.raw({ type: "application/json" }),
+  bookingController.webhookCheckout
+);
+
 // Log requests
 app.use(logger("dev"));
 
 // Parse JSON and URL-encoded data
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
-// Stripe webhook endpoint
-app.post("/webhook-checkout", express.json, bookingController.webhookCheckout);
 
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());

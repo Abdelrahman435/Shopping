@@ -18,7 +18,9 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     mode: "payment",
-    success_url: `${req.protocol}://${req.get("host")}/bookings/checkout/success`,
+    success_url: `${req.protocol}://${req.get(
+      "host"
+    )}/bookings/checkout/success`,
     cancel_url: `${req.protocol}://${req.get("host")}/checkout/cancel`,
     customer_email: req.user.email,
     client_reference_id: req.params.productId,
@@ -51,26 +53,26 @@ const createBookingCheckout = async (session) => {
     const price = session.amount_total / 100;
     await Bookings.create({ user, product, price });
   } catch (err) {
-    console.error('Error creating booking:', err);
+    console.error("Error creating booking:", err);
   }
 };
 
 exports.webhookCheckout = catchAsync(async (req, res, next) => {
-  const signature = req.headers['stripe-signature'];
+  const signature = req.headers["stripe-signature"];
 
   let event;
   try {
     event = stripe.webhooks.constructEvent(
-      req.body,
+      req.rawBody,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err) {
-    console.error('Webhook signature verification failed:', err.message);
+    console.error("Webhook signature verification failed:", err.message);
     return res.status(400).send(`Webhook error: ${err.message}`);
   }
 
-  if (event.type === 'checkout.session.completed') {
+  if (event.type === "checkout.session.completed") {
     await createBookingCheckout(event.data.object);
   }
 
