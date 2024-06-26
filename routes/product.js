@@ -5,12 +5,12 @@ const uploadToCloudinary = require("../middlewares/uploadToCloudinary");
 const detailsRouter = require("../routes/addDetails");
 
 const router = express.Router();
+router.get("/",productController.getAllProducts)
 router.use(authController.protect);
 router.use("/:productId/details", detailsRouter);
 
 router
   .route("/")
-  .get(productController.getAllProducts)
   .post(
     authController.restrictTo("admin", "super admin"),
     productController.setid,

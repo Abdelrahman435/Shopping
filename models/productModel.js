@@ -62,7 +62,8 @@ const productSchema = new mongoose.Schema(
 );
 
 productSchema.virtual("priceAfterDiscount").get(function () {
-  return this.price - (this.discount / 100) * this.price;
+  if (this.discount > 0) return this.price - (this.discount / 100) * this.price;
+  return this.price;
 });
 
 productSchema.virtual("detailsOfProduct", {

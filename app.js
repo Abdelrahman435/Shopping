@@ -16,6 +16,8 @@ const globalErrorHandler = require("./controllers/errorController");
 var usersRouter = require("./routes/users");
 var productsRouter = require("./routes/product");
 var detailsRouter = require("./routes/addDetails");
+var bookingRouter = require("./routes/booking");
+var bookingController = require("./controllers/bookingController");
 
 // const poseDetectRouter = require("./routes/poseDetect");
 
@@ -47,6 +49,8 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 app.use(express.static(path.join(__dirname, "public")));
 
+// app.post("/webhook-checkout", express.raw, bookingController.webhookCheckout);
+
 app.use(logger("dev"));
 app.use(express.json());
 
@@ -73,6 +77,7 @@ app.use(express.static("upload"));
 app.use("/users", usersRouter);
 app.use("/products", productsRouter);
 app.use("/details", detailsRouter);
+app.use("/bookings", bookingRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

@@ -5,6 +5,7 @@ const sharp = require("sharp");
 const AppError = require("./../utils/appError");
 const factory = require("./handlerFactory");
 const User = require("../models/userModel");
+const APIFeatures = require("./../utils/apiFeatures");
 
 const multerStorage = multer.memoryStorage();
 
@@ -52,7 +53,44 @@ exports.setid = catchAsync(async (req, res, next) => {
 //   next();
 // });
 
-exports.getAllProducts = factory.getAll(Product);
+exports.getAllProducts = catchAsync(async (req, res, next) => {
+  // Fetch all products
+  const products = await Product.find();
+
+  // Group products by category
+  const productsByCategory = products.reduce((acc, product) => {
+    const category = product.category || "Uncategorized";
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(product);
+    return acc;
+  }, {});
+
+  // Calculate total documents and total pages for each category
+  const categoryStats = Object.keys(productsByCategory).map((category) => {
+    const categoryProducts = productsByCategory[category];
+    const totalDocs = categoryProducts.length;
+    let totalPages;
+    if (req.query.limit) {
+      totalPages = Math.ceil(totalDocs / req.query.limit);
+    } else {
+      totalPages = 0;
+    }
+    return {
+      category,
+      totalDocs,
+      totalPages,
+      products: categoryProducts,
+    };
+  });
+
+  // SEND RESPONSE
+  res.status(200).json({
+    status: "success",
+    data: categoryStats,
+  });
+});
 
 exports.getProduct = factory.getOne(Product);
 
