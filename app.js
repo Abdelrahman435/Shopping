@@ -51,7 +51,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // Stripe webhook endpoint
 app.post(
   "/webhook-checkout",
-  bodyParser.raw({ type: "application/json" }),
+  express.raw({ type: "*/*" }),
   bookingController.webhookCheckout
 );
 
