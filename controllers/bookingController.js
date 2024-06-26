@@ -19,23 +19,24 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     mode: "payment", // Specify the mode
-    success_url: `${req.protocol}://${req.get("host")}/bookings/checkout/success`,
+    success_url: `${req.protocol}://${req.get(
+      "host"
+    )}/bookings/checkout/success`,
     cancel_url: `${req.protocol}://${req.get("host")}/checkout/cancel`,
     customer_email: req.user.email,
     client_reference_id: req.params.productId,
     line_items: [
       {
-        price_data: {
-          currency: "usd",
-          product_data: {
-            name: `${product.name} Product`,
-            description: product.description,
-            images: [req.body.image],
-            // size: req.body.size,
-            // color: req.body.color,
-          },
-          unit_amount: product.priceAfterDiscount * 100,
-        },
+        currency: "usd",
+
+        name: `${product.name} Product`,
+        description: product.description,
+        images: [req.body.image],
+        // size: req.body.size,
+        // color: req.body.color,
+
+        amount: product.priceAfterDiscount * 100,
+
         quantity: 1,
       },
     ],
@@ -50,7 +51,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 const createBookingCheckout = async (session) => {
   const product = session.client_reference_id;
   const user = (await User.findOne({ email: session.customer_email })).id;
-  const price = session.line_items[0].price_data.unit_amount;
+  const price = session.display_items[0].amount / 100;
   await Bookings.create({ user, product, price });
 };
 
