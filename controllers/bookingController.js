@@ -2,7 +2,7 @@ const Product = require("../models/productModel");
 const Bookings = require("../models/bookingModel");
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
-const factory = require("./handlerFactory");
+// const factory = require("./handlerFactory");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const User = require("../models/userModel");
 
