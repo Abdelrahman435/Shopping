@@ -16,11 +16,11 @@ const bookingSchema = new mongoose.Schema(
       type: Number,
       required: [true, "A Booking must have a price"],
     },
-    color: { type: String, required: true },
-    size: {
-      type: String,
-      required: true,
-    },
+    // color: { type: String, required: true },
+    // size: {
+    //   type: String,
+    //   required: true,
+    // },
     paid:{
         type: Boolean,
         default: true,
