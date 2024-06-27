@@ -5,6 +5,7 @@ const AppError = require("./../utils/appError");
 // const factory = require("./handlerFactory");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const User = require("../models/userModel");
+const Cart = require("../models/cartModel");
 
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   // 1) Get the booked product
@@ -52,6 +53,23 @@ const createBookingCheckout = async (session) => {
     const user = (await User.findOne({ email: session.customer_email })).id;
     const price = session.amount_total / 100;
     await Bookings.create({ user, product, price });
+    await User.findByIdAndUpdate(
+      user,
+      { $push: { bookedProducts: product } }, //$push to add to the array
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    await User.findByIdAndUpdate(
+      req.user.id,
+      { $pull: { cartProducts: req.params.productId } }, //$push to add to the array
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    await Cart.findOneAndDelete({ user: user, product: product });
   } catch (err) {
     console.error("Error creating booking:", err);
   }

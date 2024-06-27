@@ -68,6 +68,18 @@ const userSchema = new mongoose.Schema(
         ref: "Product",
       },
     ],
+    cartProducts: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "Product",
+      },
+    ],
+    bookedProducts: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "Product",
+      },
+    ],
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,

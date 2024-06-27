@@ -87,6 +87,12 @@ productSchema.virtual("productsOwner", {
   localField: "_id",
 });
 
+productSchema.virtual("cartProducts", {
+  ref: "Cart",
+  foreignField: "product",
+  localField: "_id",
+});
+
 productSchema.post("save", async function (doc, next) {
   try {
     await mongoose.model("User").findByIdAndUpdate(doc.productOwner, {

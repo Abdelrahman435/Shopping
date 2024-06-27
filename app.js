@@ -18,6 +18,7 @@ var usersRouter = require("./routes/users");
 var productsRouter = require("./routes/product");
 var detailsRouter = require("./routes/addDetails");
 var bookingRouter = require("./routes/booking");
+var cartRouter = require("./routes/cart");
 var bookingController = require("./controllers/bookingController");
 
 var app = express();
@@ -84,6 +85,7 @@ app.use("/users", usersRouter);
 app.use("/products", productsRouter);
 app.use("/details", detailsRouter);
 app.use("/bookings", bookingRouter);
+app.use("/cart", cartRouter);
 
 // Catch 404 and forward to error handler
 app.all("*", (req, res, next) => {
