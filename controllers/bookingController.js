@@ -63,7 +63,7 @@ const createBookingCheckout = async (session) => {
     );
     await User.findByIdAndUpdate(
       user,
-      { $pull: { cartProducts: req.params.productId } }, //$push to add to the array
+      { $pull: { cartProducts: product } }, //$push to add to the array
       {
         new: true,
         runValidators: true,
