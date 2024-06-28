@@ -11,7 +11,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const products = req.body.products; // Array of products from the request body
 
   // Collect all product IDs as an array
-  const allProductIds = products.map((product) => product.id).join(",");
+  const allProductIds = products.map(product => product.id).join(',');
 
   const lineItems = products.map((product) => ({
     price_data: {
@@ -26,7 +26,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
       },
       unit_amount: product.price * 100, // Assuming product price is in dollars
     },
-    quantity: 1, // Assuming quantity is provided in each product
+    quantity: 1 // Assuming quantity is provided in each product
   }));
 
   const session = await stripe.checkout.sessions.create({
