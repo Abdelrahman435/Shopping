@@ -47,43 +47,40 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 });
 
 const createBookingCheckout = async (session) => {
-  try {
-    const user = (await User.findOne({ email: session.customer_email })).id;
-    const allProductIds =
-      session.line_items[0].price_data.product_data.metadata.allProductIds;
-    await User.findByIdAndUpdate(
-      user,
-      {
-        $push: {
-          bookedProducts: { $each: allProductIds },
-        },
-      }, //$push to add to the array
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
-    await User.findByIdAndUpdate(
-      user,
-      {
-        $pull: {
-          cartProducts: { $each: allProductIds },
-        },
-      }, //$push to add to the array
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
-    await Cart.findOneAndDelete({ user: user });
-  } catch (err) {
-    console.error("Error creating booking:", err);
-  }
+  const user = (await User.findOne({ email: session.customer_email })).id;
+  const allProductIds =
+    session.line_items[0].price_data.product_data.metadata.allProductIds;
+  await User.findByIdAndUpdate(
+    user,
+    {
+      $push: {
+        bookedProducts: { $each: allProductIds },
+      },
+    }, //$push to add to the array
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+  await User.findByIdAndUpdate(
+    user,
+    {
+      $pull: {
+        cartProducts: { $each: allProductIds },
+      },
+    }, //$push to add to the array
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+  await Cart.findOneAndDelete({ user: user });
+  return user;
 };
 
 exports.webhookCheckout = catchAsync(async (req, res, next) => {
   const signature = req.headers["stripe-signature"];
-  let flag = false;
+  let flag 
   let event;
   try {
     event = stripe.webhooks.constructEvent(
@@ -97,8 +94,7 @@ exports.webhookCheckout = catchAsync(async (req, res, next) => {
   }
 
   if (event.type === "checkout.session.completed") {
-    flag = true;
-    await createBookingCheckout(event.data.object);
+    flag = await createBookingCheckout(event.data.object);
   }
 
   res.status(200).json({ received: true, flag });
