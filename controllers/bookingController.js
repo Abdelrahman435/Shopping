@@ -83,7 +83,7 @@ const createBookingCheckout = async (session) => {
 
 exports.webhookCheckout = catchAsync(async (req, res, next) => {
   const signature = req.headers["stripe-signature"];
-
+  let flag = false;
   let event;
   try {
     event = stripe.webhooks.constructEvent(
@@ -97,8 +97,9 @@ exports.webhookCheckout = catchAsync(async (req, res, next) => {
   }
 
   if (event.type === "checkout.session.completed") {
+    flag = true;
     await createBookingCheckout(event.data.object);
   }
 
-  res.status(200).json({ received: true });
+  res.status(200).json({ received: true, flag });
 });
