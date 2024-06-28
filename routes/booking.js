@@ -15,7 +15,7 @@ router.get("/checkout/cancel", (req, res) => {
 });
 
 router.get(
-  "/checkout-session/:productId",
+  "/checkout-session",
   authController.protect,
   bookingController.getCheckoutSession
 );

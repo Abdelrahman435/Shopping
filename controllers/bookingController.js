@@ -35,7 +35,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     )}/bookings/checkout/success`,
     cancel_url: `${req.protocol}://${req.get("host")}/checkout/cancel`,
     customer_email: req.user.email,
-    client_reference_id: req.params.productId,
+    client_reference_id: allProductIds,
     line_items: lineItems,
   });
 
