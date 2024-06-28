@@ -26,7 +26,7 @@ router.patch(
 );
 
 
-router.use(authController.restrictTo("admin", "super admin"));
+router.use(authController.restrictTo("super admin"));
 
 router.patch("/activate/:id", userController.changeStatus);
 

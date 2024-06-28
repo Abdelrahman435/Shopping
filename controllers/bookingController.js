@@ -9,13 +9,25 @@ const Cart = require("../models/cartModel");
 
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   // 1) Get the booked product
-  const product = await Product.findById(req.params.productId);
+  const products = req.body.products; // Array of products from the request body
+  const allProductIds = products.map((product) => product.id).join(",");
 
-  if (!product) {
-    return next(new AppError("No product found with that ID", 404));
-  }
+  const lineItems = products.map((product) => ({
+    price_data: {
+      currency: "usd",
+      product_data: {
+        name: `${product.name} Product`,
+        images: [product.image], // Assuming images are an array in each product
+        metadata: {
+          productId: product.id, // Example of adding metadata
+          allProductIds: allProductIds, // Adding all product IDs
+        },
+      },
+      unit_amount: product.price * 100, // Assuming product price is in dollars
+    },
+    quantity: products.length, // Assuming quantity is provided in each product
+  }));
 
-  // 2) Create the checkout session
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     mode: "payment",
@@ -25,20 +37,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     cancel_url: `${req.protocol}://${req.get("host")}/checkout/cancel`,
     customer_email: req.user.email,
     client_reference_id: req.params.productId,
-    line_items: [
-      {
-        price_data: {
-          currency: "usd",
-          product_data: {
-            name: `${product.name} Product`,
-            description: product.description,
-            images: [req.body.image],
-          },
-          unit_amount: product.priceAfterDiscount * 100,
-        },
-        quantity: 1,
-      },
-    ],
+    line_items: lineItems,
   });
 
   res.status(200).json({
@@ -49,13 +48,16 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 
 const createBookingCheckout = async (session) => {
   try {
-    const product = session.client_reference_id;
     const user = (await User.findOne({ email: session.customer_email })).id;
-    const price = session.amount_total / 100;
-    await Bookings.create({ user, product, price });
+    const allProductIds =
+      session.line_items[0].price_data.product_data.metadata.allProductIds;
     await User.findByIdAndUpdate(
       user,
-      { $push: { bookedProducts: product } }, //$push to add to the array
+      {
+        $push: {
+          bookedProducts: { $each: allProductIds },
+        },
+      }, //$push to add to the array
       {
         new: true,
         runValidators: true,
@@ -63,13 +65,17 @@ const createBookingCheckout = async (session) => {
     );
     await User.findByIdAndUpdate(
       user,
-      { $pull: { cartProducts: product } }, //$push to add to the array
+      {
+        $pull: {
+          cartProducts: { $each: allProductIds },
+        },
+      }, //$push to add to the array
       {
         new: true,
         runValidators: true,
       }
     );
-    await Cart.findOneAndDelete({ user: user, product: product });
+    await Cart.findOneAndDelete({ user: user });
   } catch (err) {
     console.error("Error creating booking:", err);
   }

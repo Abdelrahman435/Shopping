@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get("/checkout/success", (req, res) => {
   res.send(
-    `Payment successful for product ${req.query.product}. Thank you for your purchase!`
+    `Payment successful for product ${req.query.productId}. Thank you for your purchase!`
   );
 });
 

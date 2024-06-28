@@ -12,7 +12,7 @@ router.use("/:productId/details", detailsRouter);
 router
   .route("/")
   .post(
-    authController.restrictTo("admin", "super admin"),
+    authController.restrictTo("Products Owner", "super admin"),
     productController.setid,
     productController.createProduct
   );
@@ -23,14 +23,14 @@ router
   .route("/:id")
   .get(productController.getProduct)
   .patch(
-    authController.restrictTo("admin", "super admin"),
+    authController.restrictTo("Products Owner", "super admin"),
     productController.uploadProductPhotos,
     productController.resizeProductPhotos,
     uploadToCloudinary,
     productController.updateProduct
   )
   .delete(
-    authController.restrictTo("admin", "super admin"),
+    authController.restrictTo("Products Owner", "super admin"),
     // productController.deleteRelatedData,
     productController.deleteProduct
   );
