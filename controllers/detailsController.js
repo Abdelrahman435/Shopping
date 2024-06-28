@@ -42,7 +42,7 @@ exports.setQuantity = catchAsync(async (req, res, next) => {
   for (let i = 0; i < array.length; i++) {
     sum = sum + Number(array[i].quantity);
   }
-  await Product.findByIdAndUpdate(req.body.Product, { allQuantity: sum });
+  await Product.findByIdAndUpdate(req.body.Product, {$inc: {allQuantity: sum} });
   next();
 });
 

@@ -3,6 +3,7 @@ const catchAsync = require("./../utils/catchAsync");
 const factory = require("./handlerFactory");
 const User = require("../models/userModel");
 const Product = require("../models/productModel");
+const Details = require("../models/productDetails");
 
 exports.getProductsForUser = catchAsync(async (req, res, next) => {
   const cartItems = await Cart.find({ user: req.user.id });
@@ -55,6 +56,20 @@ exports.createCart = catchAsync(async (req, res, next) => {
       runValidators: true,
     }
   );
+
+  const updatedInventory = await Details.findOneAndUpdate(
+    { id: req.body.idOfDetail, "sizes.size": req.body.size },
+    { $inc: { "sizes.$.quantity": -1 } }, // Decrease quantity by 1
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  if (!updatedInventory) {
+    return next(new Error("Failed to update inventory quantity."));
+  }
+
   res.status(201).json({
     status: "success",
     data: {
@@ -79,6 +94,9 @@ exports.pullProductId = catchAsync(async (req, res, next) => {
 exports.deleteProductFromCart = factory.deleteOne(Cart);
 
 exports.deleteAllProductFromCart = catchAsync(async (req, res, next) => {
+
+
+
   await Cart.deleteMany({ user: req.user.id });
 
   res.status(200).json({

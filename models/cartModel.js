@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 
 const cartSchema = new mongoose.Schema(
   {
+    detailsId: {
+      type: mongoose.Schema.ObjectId,
+      required: [true, "Cart must belong to a Details"],
+    },
     product: {
       type: mongoose.Schema.ObjectId,
       ref: "Product",
