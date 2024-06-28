@@ -8,8 +8,9 @@ const User = require("../models/userModel");
 const Cart = require("../models/cartModel");
 
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
-  // 1) Get the booked product
   const products = req.body.products; // Array of products from the request body
+
+  // Collect all product IDs as an array
   const allProductIds = products.map((product) => product.id).join(",");
 
   const lineItems = products.map((product) => ({
@@ -18,11 +19,14 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
       product_data: {
         name: `${product.name} Product`,
         images: [product.image], // Assuming images are an array in each product
-        allProducts: allProductIds, // Example of adding metadata
+        metadata: {
+          productId: product.id, // Example of adding individual product ID
+          allProductIds: allProductIds, // Adding all product IDs as an array
+        },
       },
       unit_amount: product.price * 100, // Assuming product price is in dollars
     },
-    quantity: products.length, // Assuming quantity is provided in each product
+    quantity: 1, // Assuming quantity is provided in each product
   }));
 
   const session = await stripe.checkout.sessions.create({
