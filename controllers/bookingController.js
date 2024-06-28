@@ -47,10 +47,10 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 
 const createBookingCheckout = async (session) => {
   try {
-    const product = session.client_reference_id;
+    // const product = session.client_reference_id;
     const user = await User.findOne({ email: session.customer_email });
-    const price = session.amount_total / 100;
-    await Bookings.create({ user, product, price });
+    // const price = session.amount_total / 100;
+    // await Bookings.create({ user, product, price });
     await User.findByIdAndUpdate(
       user.id,
       { $push: { bookedProducts: { $each: user.cartProducts } } }, //$push to add to the array
@@ -61,7 +61,7 @@ const createBookingCheckout = async (session) => {
     );
     await User.findByIdAndUpdate(
       user.id,
-      { $set: { cartProducts: [] }}, //$push to add to the array
+      { $set: { cartProducts: [] } }, //$push to add to the array
       {
         new: true,
         runValidators: true,
