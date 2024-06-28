@@ -54,7 +54,7 @@ const createBookingCheckout = async (session) => {
     const price = session.amount_total / 100;
 
     const allProductIds =
-      session.line_items[0].price_data.product_data.metadata.allProducts;
+      session.line_items[0].price_data.product_data.metadata.allProductIds;
 
     await User.findByIdAndUpdate(
       user,
