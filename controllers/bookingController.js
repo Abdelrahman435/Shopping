@@ -55,6 +55,7 @@ const createBookingCheckout = async (session) => {
 
     const allProductIds =
       session.line_items[0].price_data.product_data.metadata.allProductIds;
+      await Cart.deleteMany({ user: user });
 
     await User.findByIdAndUpdate(
       user,
@@ -82,7 +83,6 @@ const createBookingCheckout = async (session) => {
       }
     );
 
-    await Cart.deleteMany({ user: user });
   } catch (err) {
     console.error("Error creating booking:", err);
   }
