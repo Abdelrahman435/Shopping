@@ -53,6 +53,13 @@ const productSchema = new mongoose.Schema(
     brand: {
       type: String,
     },
+
+    favorites: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   {
     toJSON: { virtuals: true },
@@ -84,6 +91,12 @@ productSchema.pre(/^find/, function (next) {
 productSchema.virtual("productsOwner", {
   ref: "User",
   foreignField: "products",
+  localField: "_id",
+});
+
+productSchema.virtual("favoritesProducts", {
+  ref: "User",
+  foreignField: "favorites",
   localField: "_id",
 });
 

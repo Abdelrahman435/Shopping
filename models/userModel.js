@@ -80,6 +80,12 @@ const userSchema = new mongoose.Schema(
         ref: "Product",
       },
     ],
+    favorites: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "Product",
+      },
+    ],
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,
@@ -95,6 +101,12 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+userSchema.virtual("favoritesProducts", {
+  ref: "Product",
+  foreignField: "favorites",
+  localField: "_id",
+});
 
 userSchema.pre("save", async function (next) {
   // Only run this function if password has changed
