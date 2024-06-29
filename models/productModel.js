@@ -92,7 +92,27 @@ productSchema.virtual("cartProducts", {
   foreignField: "product",
   localField: "_id",
 });
+productSchema.post(/^find/, async function (docs, next) {
+  if (!Array.isArray(docs)) {
+    docs = [docs];
+  }
 
+  for (const doc of docs) {
+    const details = await mongoose.model("Details").find({ Product: doc._id });
+    let totalQuantity = 0;
+
+    details.forEach((detail) => {
+      detail.sizes.forEach((size) => {
+        totalQuantity += size.quantity;
+      });
+    });
+
+    doc.allQuantity = totalQuantity;
+    await doc.save();
+  }
+
+  next();
+});
 productSchema.post("save", async function (doc, next) {
   try {
     await mongoose.model("User").findByIdAndUpdate(doc.productOwner, {

@@ -79,6 +79,17 @@ exports.createCart = catchAsync(async (req, res, next) => {
 });
 
 exports.pullProductId = catchAsync(async (req, res, next) => {
+  const item = await Cart.findById(req.params.id);
+
+  await Details.findOneAndUpdate(
+    { _id: item.detailsId, "sizes.size": item.size },
+    { $inc: { "sizes.$.quantity": 1 } }, // Increase quantity by 1
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
   await User.findByIdAndUpdate(
     req.user.id,
     { $pull: { cartProducts: req.params.productId } }, //$push to add to the array
@@ -94,9 +105,29 @@ exports.pullProductId = catchAsync(async (req, res, next) => {
 exports.deleteProductFromCart = factory.deleteOne(Cart);
 
 exports.deleteAllProductFromCart = catchAsync(async (req, res, next) => {
+  const cartItems = await Cart.find({ user: req.user.id });
 
+  const updatePromises = cartItems.map(async (item) => {
+    await Details.findOneAndUpdate(
+      { _id: item.detailsId, "sizes.size": item.size },
+      { $inc: { "sizes.$.quantity": 1 } }, // Increase quantity by 1
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+  });
 
+  await User.findByIdAndUpdate(
+    req.user.id,
+    { $set: { cartProducts: [] } }, //$push to add to the array
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
 
+  await Promise.all(updatePromises);
   await Cart.deleteMany({ user: req.user.id });
 
   res.status(200).json({
