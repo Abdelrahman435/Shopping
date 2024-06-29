@@ -14,7 +14,6 @@ const detailsSchema = new mongoose.Schema(
         size: {
           type: String,
           required: true,
-          unique: true,
         },
         quantity: {
           type: Number,
