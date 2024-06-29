@@ -21,14 +21,12 @@ exports.addToFavorites = catchAsync(async (req, res, next) => {
   const isFavoritedByUser = product.favorites.includes(userId);
 
   if (!isFavorite && !isFavoritedByUser) {
-    // Add the product to the user's favorites
-    user.favorites.push(productId);
-    await user.save();
-
-    // Add the user to the product's favorites
-    product.favorites.push(userId);
-    await product.save();
-
+    await Product.findByIdAndUpdate(req.params.id, {
+      $push: { favorites: req.user.id },
+    });
+    await User.findByIdAndUpdate(req.user.id, {
+      $push: { favorites: req.params.id },
+    });
     return res.status(200).json({
       status: "success",
       message: "Added to favorites",
@@ -39,4 +37,63 @@ exports.addToFavorites = catchAsync(async (req, res, next) => {
       message: "You already added this product to the favorites",
     });
   }
+});
+
+exports.addQuery = (req, res, next) => {
+  req.query = { favorites: req.user.id };
+  next();
+};
+
+exports.getProducts = factory.getAll(Product);
+
+exports.deleteProductFromFavorites = catchAsync(async (req, res, next) => {
+  await Product.findByIdAndUpdate(
+    req.params.id,
+    {
+      $pull: { favorites: req.user.id },
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  await User.findByIdAndUpdate(
+    req.user.id,
+    { $pull: { favorites: req.params.id } },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  res.status(204).json({ status: "success", data: null });
+});
+
+exports.deleteAllProductFromFavorites = catchAsync(async (req, res, next) => {
+  const products = await Product.find({ favorites: req.user.id });
+  const updatePromises = products.map(async (product) => {
+    await Product.findByIdAndUpdate(
+      product.id,
+      {
+        $pull: { favorites: req.user.id },
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+  });
+  await Promise.all(updatePromises);
+
+  await User.findByIdAndUpdate(
+    req.user.id,
+    { $set: { favorites: [] } },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  res.status(204).json({ status: "success", data: null });
 });

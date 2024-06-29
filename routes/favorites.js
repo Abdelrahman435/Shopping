@@ -8,4 +8,14 @@ router.use(authController.protect);
 
 router.post("/addToFavorites/:id", favoritesController.addToFavorites);
 
+router.get(
+  "/getFavorites",
+  favoritesController.addQuery,
+  favoritesController.getProducts
+);
+
+router.delete("/deleteAll", favoritesController.deleteAllProductFromFavorites);
+
+router.delete("/deleteOne/:id", favoritesController.deleteProductFromFavorites);
+
 module.exports = router;

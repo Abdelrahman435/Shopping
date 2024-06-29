@@ -108,7 +108,6 @@ exports.getAll = (Model) =>
     //To allow for nested GET Materials on course
     let filter = {};
     let docs;
-    if (req.params.courseId) filter = { course: req.params.courseId };
     const features = new APIFeatures(Model.find(filter), req.query)
       .filter()
       .sort()

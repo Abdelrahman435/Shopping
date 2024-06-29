@@ -126,14 +126,19 @@ productSchema.post(/^find/, async function (docs, next) {
 
   next();
 });
+
 productSchema.post("save", async function (doc, next) {
-  try {
-    await mongoose.model("User").findByIdAndUpdate(doc.productOwner, {
-      $push: { products: doc._id },
-    });
+  if (doc.isNew) {
+    try {
+      await mongoose.model("User").findByIdAndUpdate(doc.productOwner, {
+        $push: { products: doc._id },
+      });
+      next();
+    } catch (error) {
+      next(error);
+    }
+  } else {
     next();
-  } catch (error) {
-    next(error);
   }
 });
 
