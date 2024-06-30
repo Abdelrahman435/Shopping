@@ -10,7 +10,7 @@ router.use(authController.protect);
 router
   .route("/")
   .post(
-    authController.restrictTo("admin", "super admin"),
+    authController.restrictTo("Products Owner", "super admin"),
     detailsController.uploadProductPhotos,
     detailsController.resizeProductPhotos,
     uploadToCloudinary,
