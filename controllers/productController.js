@@ -57,7 +57,6 @@ exports.setid = catchAsync(async (req, res, next) => {
 // });
 
 exports.getAllProducts = catchAsync(async (req, res, next) => {
-  // Fetch all products
   const products = await Product.find();
 
   // Group products by category
@@ -66,7 +65,13 @@ exports.getAllProducts = catchAsync(async (req, res, next) => {
     if (!acc[category]) {
       acc[category] = [];
     }
-    acc[category].push(product);
+
+    let favorite = false;
+    if (req.body.userId && product.favorites.includes(req.body.userId)) {
+      favorite = true;
+    }
+
+    acc[category].push({ ...product.toObject(), favorite });
     return acc;
   }, {});
 
@@ -94,6 +99,7 @@ exports.getAllProducts = catchAsync(async (req, res, next) => {
     data: categoryStats,
   });
 });
+
 
 exports.getProduct = factory.getOne(Product);
 
