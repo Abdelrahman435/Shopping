@@ -3,10 +3,21 @@ const productController = require("../controllers/productController");
 const authController = require("./../controllers/authController");
 const uploadToCloudinary = require("../middlewares/uploadToCloudinary");
 const detailsRouter = require("../routes/addDetails");
-
+const multer = require("multer");
 const router = express.Router();
+
 router.get("/", productController.getAllProducts);
+
 router.use(authController.protect);
+
+const upload = multer({ dest: "uploads/" });
+
+router.post(
+  "/tryClothes",
+  upload.single("image"),
+  productController.TryOnClothes
+);
+
 router.use("/:productId/details", detailsRouter);
 
 router
@@ -16,8 +27,6 @@ router
     productController.setid,
     productController.createProduct
   );
-
-
 
 router
   .route("/:id")
