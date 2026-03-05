@@ -6,7 +6,7 @@ This project is the backend for an online shopping platform developed using Node
 
 ## Repositories and Resources
 
-- **Frontend (Flutter):** [Frontend Repository]([https://github.com/Ayarabee/colona](https://github.com/SaraElgamal/graduation_store))
+- **Frontend (Flutter):** [Frontend Repository](https://github.com/SaraElgamal/graduation_store)
 - **AI Model (Flask):** [AI Model Repository](https://colab.research.google.com/drive/1JqE4vwMICaZeuLIlWJQlZa336gPGaz7a?usp=sharing)
 - **Demo:** [Demo Video](https://drive.google.com/file/d/1JiRYmUDbR8eixc7EdSTHorHB37DjfLlb/view?usp=sharing)
 
